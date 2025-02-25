@@ -1,6 +1,7 @@
 import pygame
 from config import *
 import snake
+import food
 
 def snake_control():
     if event.key == pygame.K_UP or event.key == pygame.K_w:
@@ -22,6 +23,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Snake Game")
 
 snake = snake.Snake(velocity=LEFT_VELOCITY)
+food = food.Food()
 clock = pygame.time.Clock()
 
 paused = False
@@ -59,11 +61,15 @@ while running:
 
     # Draw snake
     if not paused:
+        if snake.body[0].topleft == food.rect.topleft:
+            snake.grow_snake()
+            food.position = food.reset_position()
         snake.move()
         snake.draw(screen)
     else:
         display_pause_screen()
 
+    food.draw(screen)
     #Update screen
     pygame.display.flip()
 

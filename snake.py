@@ -5,8 +5,9 @@ class Snake:
     def __init__(self, velocity, start_x=600, start_y = 400, length=3):
         self.body = [pygame.Rect(start_x + i * BODY_SIZE, start_y, BODY_SIZE, BODY_SIZE)
                      for i in range(length)]
-        self.colors = [HEAD_COLOR] + [BODY_COLOR] * (length - 2) + [TAIL_COLOR]
+        self.colors = [HEAD_COLOR] + [BODY_COLOR] * (len(self.body) - 2) + [TAIL_COLOR]
         self.velocity = velocity
+        self.grow = False
 
     def draw(self, screen):
         for rect, color in zip(self.body, self.colors):
@@ -30,5 +31,13 @@ class Snake:
 
 
         self.body.insert(0, new_head)
-        self.body.pop()
+        if not self.grow:
+            self.body.pop()
+        else:
+            self.grow = False
+            self.colors = [HEAD_COLOR] + [BODY_COLOR] * (len(self.body) - 2) + [TAIL_COLOR]
         # print(self.body)
+
+    def grow_snake(self):
+        self.grow = True
+
