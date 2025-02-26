@@ -3,10 +3,11 @@ import random
 from config import *
 
 class Food:
-    def __init__(self, snake_body, width=FOOD_SIZE, height=FOOD_SIZE, color=FOOD_COLOR):
-        self.color = color
+    def __init__(self, snake_body, width=FOOD_SIZE, height=FOOD_SIZE, color=FOOD_COLOR[0]):
+        self.current_color = color
         self.position = self.random_position(snake_body)
         self.rect = pygame.Rect(self.position[0], self.position[1], width, height)
+        self.last_blink_time = pygame.time.get_ticks()
 
     def random_position(self, snake_body):
         all_positions = {
@@ -24,9 +25,14 @@ class Food:
         return self.position[0], self.position[1]
 
     def draw(self, screen):
-        pygame.draw.rect(screen, self.color, self.rect)
+        pygame.draw.rect(screen, self.current_color, self.rect)
 
     def reset_position(self, snake_body):
         self.position = self.random_position(snake_body)
         self.rect = pygame.Rect(self.position[0], self.position[1], GRID_SIZE, GRID_SIZE)
 
+    def update(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.last_blink_time > BLINK_TIME:
+            self.current_color = FOOD_COLOR[1] if self.current_color == FOOD_COLOR[0] else FOOD_COLOR[0]
+            self.last_blink_time = current_time

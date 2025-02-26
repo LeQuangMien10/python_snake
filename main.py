@@ -86,6 +86,7 @@ def draw_screen():
 
 
 def display_game():
+    food_instance.update()
     if game_over:
         display_game_over_screen()
     elif paused:
