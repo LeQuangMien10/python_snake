@@ -2,7 +2,7 @@ import pygame
 from config import *
 
 class Snake:
-    def __init__(self, velocity, start_x=600, start_y = 400, length=3):
+    def __init__(self, velocity, start_x=START_X, start_y = START_Y, length=DEFAULT_LENGTH):
         self.body = [pygame.Rect(start_x + i * BODY_SIZE, start_y, BODY_SIZE, BODY_SIZE)
                      for i in range(length)]
         self.colors = [HEAD_COLOR] + [BODY_COLOR] * (len(self.body) - 2) + [TAIL_COLOR]

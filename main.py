@@ -23,7 +23,7 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Snake Game")
 
 snake = snake.Snake(velocity=LEFT_VELOCITY)
-food = food.Food()
+food = food.Food(snake.body)
 clock = pygame.time.Clock()
 
 paused = False
@@ -63,7 +63,7 @@ while running:
     if not paused:
         if snake.body[0].topleft == food.rect.topleft:
             snake.grow_snake()
-            food.position = food.reset_position()
+            food.position = food.reset_position(snake.body)
         snake.move()
         snake.draw(screen)
     else:
