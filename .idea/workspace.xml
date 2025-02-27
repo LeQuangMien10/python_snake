@@ -4,11 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ef2c2089-3792-4584-a41b-fdcebdece56e" name="Changes" comment="Fixed food bug and changed screen size">
+    <list default="true" id="ef2c2089-3792-4584-a41b-fdcebdece56e" name="Changes" comment="Food is now blinking">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/food.py" beforeDir="false" afterPath="$PROJECT_DIR$/food.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/snake.py" beforeDir="false" afterPath="$PROJECT_DIR$/snake.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,6 +109,7 @@
       <workItem from="1740472892942" duration="8727000" />
       <workItem from="1740492252252" duration="4223000" />
       <workItem from="1740546941108" duration="4907000" />
+      <workItem from="1740658212229" duration="1731000" />
     </task>
     <task id="LOCAL-00001" summary="Add food.py">
       <option name="closed" value="true" />
@@ -126,7 +127,15 @@
       <option name="project" value="LOCAL" />
       <updated>1740548591085</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Food is now blinking">
+      <option name="closed" value="true" />
+      <created>1740553658133</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1740553658133</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -135,10 +144,11 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Add food.py" />
     <MESSAGE value="Fixed food bug and changed screen size" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed food bug and changed screen size" />
+    <MESSAGE value="Food is now blinking" />
+    <option name="LAST_COMMIT_MESSAGE" value="Food is now blinking" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Snake$snake.coverage" NAME="snake Coverage Results" MODIFIED="1740496499380" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/Snake$main.coverage" NAME="main Coverage Results" MODIFIED="1740553426115" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Snake$main.coverage" NAME="main Coverage Results" MODIFIED="1740659814278" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
