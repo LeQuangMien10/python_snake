@@ -13,7 +13,8 @@ food_instance = food.Food(snake_instance.body)
 clock = pygame.time.Clock()
 
 score = 0
-level = DEFAULT_LEVEL
+level = 8
+fps = float(2.5 * level + 2.5)
 paused = False
 game_over = False
 running = True
@@ -37,11 +38,12 @@ def snake_control():
 
 # Reset game
 def reset_game():
-    global snake_instance, food_instance, game_over, score
+    global snake_instance, food_instance, game_over, score, fps
     snake_instance = snake.Snake(velocity=LEFT_VELOCITY)
     food_instance = food.Food(snake_instance.body)
     game_over = False
     score = 0
+    fps = float(2.5 * level + 2.5)
 
 
 # Draw dynamic components (snake, food, score)
@@ -112,6 +114,7 @@ def display_game():
         draw_dynamic_components()
 
 
+# Display score
 def draw_score():
     font = pygame.font.Font(None, 50)
     score_text = font.render("Score: " + str(score), True, WHITE)
@@ -121,9 +124,10 @@ def draw_score():
 
 # Handle snake eats food
 def handle_snake_eats_food():
-    global score
+    global score, fps
     if snake_instance.body[0].topleft == food_instance.rect.topleft:
         score += level
+        fps = float(fps + 25 / 10000 * fps)
         snake_instance.grow_snake()
         food_instance.position = food_instance.reset_position(snake_instance.body)
 
@@ -152,6 +156,6 @@ while running:
 
     # Update screen
     pygame.display.flip()
-    clock.tick(DEFAULT_FPS)  # 10 FPS
+    clock.tick(fps)
 
 pygame.quit()
