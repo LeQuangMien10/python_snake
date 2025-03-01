@@ -8,16 +8,23 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Snake Game")
 
+# Menu Variables
+menu_font = pygame.font.Font(None, 25)
+menu_selected_font = pygame.font.Font(None, 50)
+options = ["CONTINUE", "NEW GAME", "QUIT"]
+selected = 0
+
+# Game variables
+game_loop = False
 snake_instance = snake.Snake(velocity=LEFT_VELOCITY)
 food_instance = food.Food(snake_instance.body)
 clock = pygame.time.Clock()
-
 score = 0
-level = 8
+level = DEFAULT_LEVEL
 fps = float(2.5 * level + 2.5)
 paused = False
 game_over = False
-running = True
+main_loop = True
 
 
 # Control snake with keyboard.
@@ -38,12 +45,14 @@ def snake_control():
 
 # Reset game
 def reset_game():
-    global snake_instance, food_instance, game_over, score, fps
+    global snake_instance, food_instance, game_over, score, fps, paused
     snake_instance = snake.Snake(velocity=LEFT_VELOCITY)
     food_instance = food.Food(snake_instance.body)
     game_over = False
     score = 0
     fps = float(2.5 * level + 2.5)
+    if paused:
+        paused = False
 
 
 # Draw dynamic components (snake, food, score)
@@ -82,12 +91,15 @@ def display_game_over_screen():
 
 
 # Handle quit, pause, game over
-def handle_event():
-    global running, paused, game_over
+def handle_game_event():
+    global main_loop, paused, game_over, game_loop
     if event.type == pygame.QUIT:
-        running = False
+        game_loop = False
+        main_loop = False
     if event.type == pygame.KEYDOWN:
-        if event.key == pygame.K_ESCAPE and not game_over:
+        if event.key == pygame.K_ESCAPE:
+            game_loop = False
+        elif event.key == pygame.K_p and not game_over:
             paused = not paused
         elif event.key == pygame.K_r:
             reset_game()
@@ -141,21 +153,59 @@ def check_for_game_over():
             # print("Game Over")
 
 
-# Main loop
-while running:
-    # Check for event
-    for event in pygame.event.get():
-        handle_event()
+# Game loop
+def do_game_loop():
+    if selected == NEW_GAME:
+        reset_game()
+    global event, game_loop
+    game_loop = True
+    while game_loop:
+        for event in pygame.event.get():
+            handle_game_event()
+        # Draw screen
+        draw_screen()
+        display_game()
+        check_for_game_over()
+        # Update screen
+        pygame.display.flip()
+        clock.tick(fps)
 
-    # Draw screen
-    draw_screen()
 
-    display_game()
-
-    check_for_game_over()
-
-    # Update screen
+# Initialize menu screen
+def initialize_menu_screen():
+    screen.fill(BACKGROUND_COLOR)
+    for i, option in enumerate(options):
+        color = WHITE if i != selected else YELLOW
+        menu_text = menu_font.render(
+            option, True, color) if i != selected else menu_selected_font.render(option, True, color)
+        screen.blit(menu_text, (10, 300 + 50 * i))
     pygame.display.flip()
-    clock.tick(fps)
+
+
+# Handle Menu Event
+def handle_menu_event():
+    global event, main_loop, selected
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            main_loop = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_DOWN:
+                selected = (selected + 1) % len(options)
+            elif event.key == pygame.K_UP:
+                selected = (selected - 1) % len(options)
+            elif event.key == pygame.K_RETURN:
+                if selected == CONTINUE:
+                    do_game_loop()
+                elif selected == NEW_GAME:
+                    do_game_loop()
+                elif selected == QUIT:
+                    main_loop = False
+
+
+# Main loop
+while main_loop:
+    initialize_menu_screen()
+    handle_menu_event()
 
 pygame.quit()
+exit()

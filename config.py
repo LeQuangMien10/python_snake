@@ -36,3 +36,8 @@ BLINK_TIME = 500
 
 # Game
 DEFAULT_LEVEL = 5
+
+# Menu
+CONTINUE = 0
+NEW_GAME = 1
+QUIT = 2
