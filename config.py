@@ -40,4 +40,6 @@ DEFAULT_LEVEL = 5
 # Menu
 CONTINUE = 0
 NEW_GAME = 1
-QUIT = 2
+HIGH_SCORE = 2
+QUIT = 3
+HIGHSCORE_FILE = "highscores.json"

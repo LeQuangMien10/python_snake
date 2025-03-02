@@ -2,6 +2,8 @@ import pygame
 from config import *
 import snake
 import food
+import json
+import datetime
 
 pygame.init()
 
@@ -11,7 +13,7 @@ pygame.display.set_caption("Snake Game")
 # Menu Variables
 menu_font = pygame.font.Font(None, 25)
 menu_selected_font = pygame.font.Font(None, 50)
-options = ["CONTINUE", "NEW GAME", "QUIT"]
+options = ["CONTINUE", "NEW GAME", "HIGH SCORES", "QUIT"]
 selected = 0
 
 # Game variables
@@ -25,6 +27,9 @@ fps = float(2.5 * level + 2.5)
 paused = False
 game_over = False
 main_loop = True
+
+# High score variables
+high_score_loop = False
 
 
 # Control snake with keyboard.
@@ -59,7 +64,7 @@ def reset_game():
 def draw_dynamic_components():
     snake_instance.draw(screen)
     food_instance.draw(screen)
-    draw_score()
+    draw_game_score()
 
 
 # Display pause screen
@@ -107,8 +112,8 @@ def handle_game_event():
             snake_control()
 
 
-# Draw static components
-def draw_screen():
+# Draw static components in game
+def draw_game_screen():
     screen.fill(BACKGROUND_COLOR)
     pygame.draw.line(screen, WHITE, LINE_START, LINE_END, LINE_WIDTH)
 
@@ -127,7 +132,7 @@ def display_game():
 
 
 # Display score
-def draw_score():
+def draw_game_score():
     font = pygame.font.Font(None, 50)
     score_text = font.render("Score: " + str(score), True, WHITE)
     score_text_rect = score_text.get_rect()
@@ -150,6 +155,7 @@ def check_for_game_over():
     if not game_over:
         if snake_instance.check_self_collision():
             game_over = True
+            update_high_scores()
             # print("Game Over")
 
 
@@ -163,7 +169,7 @@ def do_game_loop():
         for event in pygame.event.get():
             handle_game_event()
         # Draw screen
-        draw_screen()
+        draw_game_screen()
         display_game()
         check_for_game_over()
         # Update screen
@@ -178,7 +184,7 @@ def initialize_menu_screen():
         color = WHITE if i != selected else YELLOW
         menu_text = menu_font.render(
             option, True, color) if i != selected else menu_selected_font.render(option, True, color)
-        screen.blit(menu_text, (10, 300 + 50 * i))
+        screen.blit(menu_text, (10, 250 + 50 * i))
     pygame.display.flip()
 
 
@@ -198,8 +204,69 @@ def handle_menu_event():
                     do_game_loop()
                 elif selected == NEW_GAME:
                     do_game_loop()
+                elif selected == HIGH_SCORE:
+                    do_high_score_loop()
                 elif selected == QUIT:
                     main_loop = False
+
+
+# Load data from json file to an array
+def load_high_score():
+    try:
+        with open(HIGHSCORE_FILE, "r") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+
+# Save new high scores into high_scores.json
+def save_high_scores(scores):
+    with open(HIGHSCORE_FILE, "w") as file:
+        json.dump(scores, file, indent=4)
+
+
+# Update high scores
+def update_high_scores():
+    scores = load_high_score()
+    today = datetime.date.today().strftime("%d-%m-%Y")
+    scores.append({"score": score, "date": today})
+    scores = sorted(scores, key=lambda x: x["score"], reverse=True)[:10]
+
+    save_high_scores(scores)
+
+
+# High score menu loop
+def do_high_score_loop():
+    global event, main_loop, high_score_loop
+    high_score_loop = True
+    while high_score_loop:
+        for event in pygame.event.get():
+            handle_high_score_event()
+
+        draw_high_scores()
+
+
+# Display high scores
+def draw_high_scores():
+    screen.fill(BACKGROUND_COLOR)
+    scores = load_high_score()
+    y_offset = 50
+    for i, entry in enumerate(scores):
+        score_text = menu_font.render(f"{i + 1}. {entry['score']} - {entry['date']}", True, WHITE)
+        screen.blit(score_text, (SCREEN_WIDTH // 2 - score_text.get_width() // 2, y_offset))
+        y_offset += 40
+    pygame.display.flip()
+
+
+# Handle high score menu event
+def handle_high_score_event():
+    global high_score_loop, main_loop
+    if event.type == pygame.QUIT:
+        high_score_loop = False
+        main_loop = False
+    elif event.type == pygame.KEYDOWN:
+        if event.key == pygame.K_ESCAPE:
+            high_score_loop = False
 
 
 # Main loop
