@@ -3,11 +3,13 @@ from config import *
 
 class Snake:
     def __init__(self, velocity, start_x=START_X, start_y = START_Y, length=SNAKE_DEFAULT_LENGTH):
+        self.length = length
         self.body = [pygame.Rect(start_x + i * BODY_SIZE, start_y, BODY_SIZE, BODY_SIZE)
-                     for i in range(length)]
+                     for i in range(self.length)]
         self.colors = [HEAD_COLOR] + [BODY_COLOR] * (len(self.body) - 2) + [TAIL_COLOR]
         self.velocity = velocity
         self.grow = False
+
 
     def draw(self, screen):
         for rect, color in zip(self.body, self.colors):

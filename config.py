@@ -42,4 +42,5 @@ CONTINUE = 0
 NEW_GAME = 1
 HIGH_SCORE = 2
 QUIT = 3
-HIGHSCORE_FILE = "highscores.json"
+HIGH_SCORE_FILE = "highscores.json"
+SAVE_FILE = "game_state.json"

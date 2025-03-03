@@ -11,8 +11,9 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Snake Game")
 
 # Menu Variables
-menu_font = pygame.font.Font(None, 25)
-menu_selected_font = pygame.font.Font(None, 50)
+title_font = pygame.font.SysFont("comicsans", 80)
+menu_font = pygame.font.SysFont("comicsans", 20)
+menu_selected_font = pygame.font.SysFont("comicsans", 40)
 options = ["CONTINUE", "NEW GAME", "HIGH SCORES", "QUIT"]
 selected = 0
 
@@ -32,8 +33,44 @@ main_loop = True
 high_score_loop = False
 
 
+# Initialize menu screen
+def initialize_menu_screen():
+    screen.fill(BACKGROUND_COLOR)
+    title = title_font.render("SNAKE GAME", True, WHITE)
+    screen.blit(title, ((SCREEN_WIDTH - title.get_width()) // 2, 50))
+    for i, option in enumerate(options):
+        color = WHITE if i != selected else YELLOW
+        menu_text = menu_font.render(
+            option, True, color) if i != selected else menu_selected_font.render(option, True, color)
+        screen.blit(menu_text, (10, 250 + 50 * i))
+    pygame.display.flip()
+
+
+# Handle Menu Event
+def handle_menu_event():
+    global event, main_loop, selected, paused
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            main_loop = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_DOWN:
+                selected = (selected + 1) % len(options)
+            elif event.key == pygame.K_UP:
+                selected = (selected - 1) % len(options)
+            elif event.key == pygame.K_RETURN:
+                if selected == CONTINUE:
+                    do_game_loop()
+                elif selected == NEW_GAME:
+                    do_game_loop()
+                elif selected == HIGH_SCORE:
+                    do_high_score_loop()
+                elif selected == QUIT:
+                    main_loop = False
+
+
 # Control snake with keyboard.
 def snake_control():
+    global snake_instance
     if event.key == pygame.K_UP or event.key == pygame.K_w:
         if snake_instance.velocity == RIGHT_VELOCITY or snake_instance.velocity == LEFT_VELOCITY:
             snake_instance.velocity = UP_VELOCITY
@@ -158,11 +195,46 @@ def check_for_game_over():
             update_high_scores()
             # print("Game Over")
 
+def save_game_state():
+    game_data = {
+        "snake_body": [(rect.x, rect.y) for rect in snake_instance.body],
+        "snake_length": len(snake_instance.body),
+        "snake_velocity": snake_instance.velocity,
+        "food_position": food_instance.position,
+        "score": score,
+    }
+
+    with open(SAVE_FILE, "w") as file:
+        json.dump(game_data, file, indent=4)
+
+
+def load_game_state():
+    try:
+        with open(SAVE_FILE, "r") as file:
+            game_data = json.load(file)
+            return game_data
+    except (FileNotFoundError, json.JSONDecodeError):
+        return None
+
+def check_for_saved_game():
+    global score, paused, snake_instance, food_instance
+    game_data = load_game_state()
+    if game_data:
+        snake_instance.body = [pygame.Rect(x, y, BODY_SIZE, BODY_SIZE) for x, y in game_data["snake_body"]]
+        snake_instance.colors = [HEAD_COLOR] + [BODY_COLOR] * (len(snake_instance.body) - 2) + [TAIL_COLOR]
+        snake_instance.length = game_data["snake_length"]
+        snake_instance.velocity = tuple(game_data["snake_velocity"])
+        food_instance.position = tuple(game_data["food_position"])
+        food_instance.rect = pygame.Rect(food_instance.position[0], food_instance.position[1], FOOD_SIZE, FOOD_SIZE)
+        score = game_data["score"]
+        paused = True
 
 # Game loop
 def do_game_loop():
     if selected == NEW_GAME:
         reset_game()
+    else:
+        check_for_saved_game()
     global event, game_loop
     game_loop = True
     while game_loop:
@@ -175,45 +247,13 @@ def do_game_loop():
         # Update screen
         pygame.display.flip()
         clock.tick(fps)
-
-
-# Initialize menu screen
-def initialize_menu_screen():
-    screen.fill(BACKGROUND_COLOR)
-    for i, option in enumerate(options):
-        color = WHITE if i != selected else YELLOW
-        menu_text = menu_font.render(
-            option, True, color) if i != selected else menu_selected_font.render(option, True, color)
-        screen.blit(menu_text, (10, 250 + 50 * i))
-    pygame.display.flip()
-
-
-# Handle Menu Event
-def handle_menu_event():
-    global event, main_loop, selected
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            main_loop = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_DOWN:
-                selected = (selected + 1) % len(options)
-            elif event.key == pygame.K_UP:
-                selected = (selected - 1) % len(options)
-            elif event.key == pygame.K_RETURN:
-                if selected == CONTINUE:
-                    do_game_loop()
-                elif selected == NEW_GAME:
-                    do_game_loop()
-                elif selected == HIGH_SCORE:
-                    do_high_score_loop()
-                elif selected == QUIT:
-                    main_loop = False
+    save_game_state()
 
 
 # Load data from json file to an array
 def load_high_score():
     try:
-        with open(HIGHSCORE_FILE, "r") as file:
+        with open(HIGH_SCORE_FILE, "r") as file:
             return json.load(file)
     except (FileNotFoundError, json.JSONDecodeError):
         return []
@@ -221,7 +261,7 @@ def load_high_score():
 
 # Save new high scores into high_scores.json
 def save_high_scores(scores):
-    with open(HIGHSCORE_FILE, "w") as file:
+    with open(HIGH_SCORE_FILE, "w") as file:
         json.dump(scores, file, indent=4)
 
 
@@ -274,5 +314,8 @@ while main_loop:
     initialize_menu_screen()
     handle_menu_event()
 
+if game_over:
+    reset_game()
+save_game_state()
 pygame.quit()
 exit()
