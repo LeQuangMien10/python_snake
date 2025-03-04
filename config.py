@@ -44,3 +44,5 @@ HIGH_SCORE = 2
 QUIT = 3
 HIGH_SCORE_FILE = "highscores.json"
 SAVE_FILE = "game_state.json"
+
+MENU_OPTION_X = 10

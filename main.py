@@ -42,7 +42,7 @@ def initialize_menu_screen():
         color = WHITE if i != selected else YELLOW
         menu_text = menu_font.render(
             option, True, color) if i != selected else menu_selected_font.render(option, True, color)
-        screen.blit(menu_text, (10, 250 + 50 * i))
+        screen.blit(menu_text, (MENU_OPTION_X, (250 + 50 * i - menu_text.get_height() // 2)))
     pygame.display.flip()
 
 
