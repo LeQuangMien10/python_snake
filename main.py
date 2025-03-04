@@ -95,6 +95,7 @@ def reset_game():
     fps = float(2.5 * level + 2.5)
     if paused:
         paused = False
+    clear_game_state()
 
 
 # Draw dynamic components (snake, food, score)
@@ -195,6 +196,7 @@ def check_for_game_over():
             update_high_scores()
             # print("Game Over")
 
+# Save game when exit
 def save_game_state():
     game_data = {
         "snake_body": [(rect.x, rect.y) for rect in snake_instance.body],
@@ -207,7 +209,7 @@ def save_game_state():
     with open(SAVE_FILE, "w") as file:
         json.dump(game_data, file, indent=4)
 
-
+# Load game to continue
 def load_game_state():
     try:
         with open(SAVE_FILE, "r") as file:
@@ -216,6 +218,7 @@ def load_game_state():
     except (FileNotFoundError, json.JSONDecodeError):
         return None
 
+#Check if there is a saved game
 def check_for_saved_game():
     global score, paused, snake_instance, food_instance
     game_data = load_game_state()
@@ -228,6 +231,10 @@ def check_for_saved_game():
         food_instance.rect = pygame.Rect(food_instance.position[0], food_instance.position[1], FOOD_SIZE, FOOD_SIZE)
         score = game_data["score"]
         paused = True
+
+def clear_game_state():
+    with open(SAVE_FILE, "w") as file:
+        file.write("")
 
 # Game loop
 def do_game_loop():
@@ -316,6 +323,8 @@ while main_loop:
 
 if game_over:
     reset_game()
-save_game_state()
+    clear_game_state()
+else:
+    save_game_state()
 pygame.quit()
 exit()
