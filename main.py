@@ -14,7 +14,7 @@ pygame.display.set_caption("Snake Game")
 title_font = pygame.font.SysFont("comicsans", 80)
 menu_font = pygame.font.SysFont("comicsans", 20)
 menu_selected_font = pygame.font.SysFont("comicsans", 40)
-options = ["CONTINUE", "NEW GAME", "HIGH SCORES", "QUIT"]
+options = ["CONTINUE", "NEW GAME", "SELECT LEVEL", "HIGH SCORES", "QUIT"]
 selected = 0
 
 # Game variables
@@ -23,14 +23,18 @@ snake_instance = snake.Snake(velocity=LEFT_VELOCITY)
 food_instance = food.Food(snake_instance.body)
 clock = pygame.time.Clock()
 score = 0
-level = DEFAULT_LEVEL
-fps = float(2.5 * level + 2.5)
 paused = False
 game_over = False
 main_loop = True
 
 # High score variables
 high_score_loop = False
+
+# Level variables
+level_loop = False
+current_level = DEFAULT_LEVEL
+fps = LEVEL_SPEEDS[current_level]
+str_fps = str(fps)
 
 
 # Initialize menu screen
@@ -51,6 +55,7 @@ def handle_menu_event():
     global event, main_loop, selected, paused
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            save_settings()
             main_loop = False
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
@@ -64,7 +69,10 @@ def handle_menu_event():
                     do_game_loop()
                 elif selected == HIGH_SCORE:
                     do_high_score_loop()
+                elif selected == LEVEL_SELECT:
+                    do_level_menu_loop()
                 elif selected == QUIT:
+                    save_settings()
                     main_loop = False
 
 
@@ -92,7 +100,7 @@ def reset_game():
     food_instance = food.Food(snake_instance.body)
     game_over = False
     score = 0
-    fps = float(2.5 * level + 2.5)
+    fps = LEVEL_SPEEDS[current_level]
     if paused:
         paused = False
     clear_game_state()
@@ -173,7 +181,6 @@ def display_game():
 def draw_game_score():
     font = pygame.font.Font(None, 50)
     score_text = font.render("Score: " + str(score), True, WHITE)
-    score_text_rect = score_text.get_rect()
     screen.blit(score_text, (10, 10))
 
 
@@ -181,7 +188,7 @@ def draw_game_score():
 def handle_snake_eats_food():
     global score, fps
     if snake_instance.body[0].topleft == food_instance.rect.topleft:
-        score += level
+        score += current_level
         fps = float(fps + 25 / 10000 * fps)
         snake_instance.grow_snake()
         food_instance.position = food_instance.reset_position(snake_instance.body)
@@ -196,6 +203,7 @@ def check_for_game_over():
             update_high_scores()
             # print("Game Over")
 
+
 # Save game when exit
 def save_game_state():
     game_data = {
@@ -204,10 +212,12 @@ def save_game_state():
         "snake_velocity": snake_instance.velocity,
         "food_position": food_instance.position,
         "score": score,
+        "paused": True
     }
 
     with open(SAVE_FILE, "w") as file:
         json.dump(game_data, file, indent=4)
+
 
 # Load game to continue
 def load_game_state():
@@ -218,7 +228,8 @@ def load_game_state():
     except (FileNotFoundError, json.JSONDecodeError):
         return None
 
-#Check if there is a saved game
+
+# Check if there is a saved game
 def check_for_saved_game():
     global score, paused, snake_instance, food_instance
     game_data = load_game_state()
@@ -230,11 +241,20 @@ def check_for_saved_game():
         food_instance.position = tuple(game_data["food_position"])
         food_instance.rect = pygame.Rect(food_instance.position[0], food_instance.position[1], FOOD_SIZE, FOOD_SIZE)
         score = game_data["score"]
-        paused = True
+        paused = game_data["paused"]
 
+
+# Clear game_state file
 def clear_game_state():
     with open(SAVE_FILE, "w") as file:
         file.write("")
+
+
+def reset_fps():
+    global str_fps
+    str_fps = str(LEVEL_SPEEDS[current_level])
+    save_settings()
+
 
 # Game loop
 def do_game_loop():
@@ -242,7 +262,7 @@ def do_game_loop():
         reset_game()
     else:
         check_for_saved_game()
-    global event, game_loop
+    global event, game_loop, fps, str_fps
     game_loop = True
     while game_loop:
         for event in pygame.event.get():
@@ -254,6 +274,8 @@ def do_game_loop():
         # Update screen
         pygame.display.flip()
         clock.tick(fps)
+        str_fps = str(fps)
+        print(current_level, fps, LEVEL_SPEEDS[current_level], str_fps)
     save_game_state()
 
 
@@ -316,15 +338,97 @@ def handle_high_score_event():
             high_score_loop = False
 
 
+# Level menu loop
+def do_level_menu_loop():
+    global current_level, level_loop, main_loop
+
+    title_text = title_font.render("CHOOSE LEVEL", True, WHITE)
+    subtitle_text = menu_font.render("Press ESC to go back to main menu", True, WHITE)
+
+    selected_level = current_level
+    level_loop = True
+    while level_loop:
+        selected_level = handle_level_menu_event(selected_level)
+        draw_level_menu(selected_level, subtitle_text, title_text)
+
+
+# Draw level menu
+def draw_level_menu(selected_level, subtitle_text, title_text):
+    screen.fill(BACKGROUND_COLOR)
+    screen.blit(title_text, (SCREEN_WIDTH // 2 - title_text.get_width() // 2, 10))
+    screen.blit(subtitle_text, (SCREEN_WIDTH // 2 - subtitle_text.get_width() // 2, 125))
+    for i in range(1, 9):
+        color = WHITE if i != selected_level else YELLOW
+        level_text = menu_font.render(
+            f"Level {i}", True,
+            color) if i != selected_level else menu_selected_font.render(
+            f"Level {i}", True, color)
+        screen.blit(level_text, (SCREEN_WIDTH // 2 - level_text.get_width() // 2,
+                                 150 + i * 40 - level_text.get_height() // 2))
+    pygame.display.flip()
+
+
+# Handle level menu event
+def handle_level_menu_event(selected_level):
+    global level_loop, main_loop, current_level
+    for e in pygame.event.get():
+        if e.type == pygame.QUIT:
+            level_loop = False
+            main_loop = False
+        if e.type == pygame.KEYDOWN:
+            if e.key == pygame.K_ESCAPE:
+                level_loop = False
+            elif e.key == pygame.K_RETURN:
+                if current_level != selected_level:
+                    current_level = selected_level
+                    reset_game()
+                    clear_game_state()
+                save_settings()
+                level_loop = False
+            elif e.key == pygame.K_UP or e.key == pygame.K_w:
+                selected_level = selected_level - 1 if selected_level > 1 else 8
+            elif e.key == pygame.K_DOWN or e.key == pygame.K_s:
+                selected_level = selected_level + 1 if selected_level < 8 else 1
+    return selected_level
+
+
+# Save settings
+def save_settings():
+    print(fps, str_fps)
+    settings = {
+        "level": current_level,
+        "fps": str_fps
+    }
+    with open(SETTINGS_FILE, "w") as file:
+        json.dump(settings, file, indent=4)
+
+
+# Load settings
+def load_settings():
+    global current_level, fps, str_fps
+    try:
+        with open(SETTINGS_FILE, "r") as file:
+            settings = json.load(file)
+            current_level = settings.get("level")
+            fps = float(settings.get("fps"))
+            str_fps = str(fps)
+    except (FileNotFoundError, json.JSONDecodeError):
+        current_level = DEFAULT_LEVEL
+        fps = LEVEL_SPEEDS[current_level]
+
+
+load_settings()
 # Main loop
 while main_loop:
     initialize_menu_screen()
     handle_menu_event()
 
 if game_over:
+    reset_fps()
     reset_game()
     clear_game_state()
 else:
     save_game_state()
+
 pygame.quit()
 exit()

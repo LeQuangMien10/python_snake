@@ -30,19 +30,32 @@ LEFT_VELOCITY = (-20, 0)
 RIGHT_VELOCITY = (20, 0)
 
 # Food
-FOOD_SIZE =  GRID_SIZE
+FOOD_SIZE = GRID_SIZE
 FOOD_COLOR = [GREEN, YELLOW]
 BLINK_TIME = 500
 
 # Game
 DEFAULT_LEVEL = 5
 
+LEVEL_SPEEDS = {
+    1: 5.0,
+    2: 8.0,
+    3: 12.0,
+    4: 16.0,
+    5: 20.0,
+    6: 25.0,
+    7: 30.0,
+    8: 40.0
+}
+
 # Menu
 CONTINUE = 0
 NEW_GAME = 1
-HIGH_SCORE = 2
-QUIT = 3
+LEVEL_SELECT = 2
+HIGH_SCORE = 3
+QUIT = 4
 HIGH_SCORE_FILE = "highscores.json"
 SAVE_FILE = "game_state.json"
+SETTINGS_FILE = "settings.json"
 
 MENU_OPTION_X = 10
