@@ -48,6 +48,12 @@ LEVEL_SPEEDS = {
     8: 40.0
 }
 
+# Sound
+EATING_SOUND = 'assets/sounds/eat.wav'
+GAME_OVER_SOUND = 'assets/sounds/game_over.wav'
+BUTTON_HOVER_SOUND = 'assets/sounds/hover.wav'
+BUTTON_PRESSED_SOUND = 'assets/sounds/button_pressed.wav'
+
 # Menu
 CONTINUE = 0
 NEW_GAME = 1

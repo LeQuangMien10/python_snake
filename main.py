@@ -8,9 +8,16 @@ import json
 import datetime
 
 pygame.init()
+pygame.mixer.init()
 
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Snake Game")
+
+# Sound variables
+eating_sound = pygame.mixer.Sound(EATING_SOUND)
+game_over_sound = pygame.mixer.Sound(GAME_OVER_SOUND)
+button_hover_sound = pygame.mixer.Sound(BUTTON_HOVER_SOUND)
+button_pressed_sound = pygame.mixer.Sound(BUTTON_PRESSED_SOUND)
 
 # Menu Variables
 title_font = pygame.font.SysFont("comicsans", 80)
@@ -65,9 +72,12 @@ def handle_menu_event():
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_DOWN:
                 selected = (selected + 1) % len(options)
+                button_hover_sound.play()
             elif event.key == pygame.K_UP:
                 selected = (selected - 1) % len(options)
+                button_hover_sound.play()
             elif event.key == pygame.K_RETURN:
+                button_pressed_sound.play()
                 if selected == CONTINUE:
                     do_game_loop()
                 elif selected == NEW_GAME:
@@ -80,6 +90,7 @@ def handle_menu_event():
                     save_settings()
                     main_loop = False
             elif event.key == pygame.K_a:
+                button_pressed_sound.play()
                 do_ai_game_loop()
 
 
@@ -199,6 +210,7 @@ def handle_snake_eats_food():
         fps = float(fps + 25 / 10000 * fps)
         snake_instance.grow_snake()
         food_instance.position = food_instance.reset_position(snake_instance.body)
+        eating_sound.play()
         return True
     return False
 
@@ -209,6 +221,7 @@ def check_for_game_over():
     if not game_over:
         if snake_instance.check_self_collision():
             game_over = True
+            game_over_sound.play()
             update_high_scores()
             # print("Game Over")
 
@@ -388,6 +401,7 @@ def handle_level_menu_event(selected_level):
             if e.key == pygame.K_ESCAPE:
                 level_loop = False
             elif e.key == pygame.K_RETURN:
+                button_pressed_sound.play()
                 if current_level != selected_level:
                     current_level = selected_level
                     reset_game()
@@ -395,8 +409,10 @@ def handle_level_menu_event(selected_level):
                 save_settings()
                 level_loop = False
             elif e.key == pygame.K_UP or e.key == pygame.K_w:
+                button_hover_sound.play()
                 selected_level = selected_level - 1 if selected_level > 1 else 8
             elif e.key == pygame.K_DOWN or e.key == pygame.K_s:
+                button_hover_sound.play()
                 selected_level = selected_level + 1 if selected_level < 8 else 1
     return selected_level
 
@@ -479,6 +495,7 @@ def move_snake_ai(snake, food):
         fps = float(fps + 25 / 10000 * fps)
         snake.grow_snake()
         food.position = food.reset_position(snake.body)
+        eating_sound.play()
         head = snake.body[0].topleft
         food_pos = food.reset_position(snake_instance.body)
     
