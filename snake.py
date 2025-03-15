@@ -20,7 +20,7 @@ class Snake:
         new_x = head_x + self.velocity[0]
         new_y = head_y + self.velocity[1]
 
-        new_x, new_y = self.check_food_out_of_bound(new_x, new_y)
+        new_x, new_y = self.check_head_out_of_bound(new_x, new_y)
         new_head = pygame.Rect(new_x, new_y, BODY_SIZE, BODY_SIZE)
 
         self.body.insert(0, new_head)
@@ -37,7 +37,7 @@ class Snake:
 
         return head_pos in body_positions
 
-    def check_food_out_of_bound(self, new_x, new_y):
+    def check_head_out_of_bound(self, new_x, new_y):
         if new_y < LINE_START[1]:
             new_y = SCREEN_HEIGHT - BODY_SIZE
         elif new_y >= SCREEN_HEIGHT:
