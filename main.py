@@ -471,30 +471,26 @@ def astar(start, goal, obstacles):
 
 def move_snake_ai(snake, food):
     global score, fps
-    head = snake.body[0].topleft  # Lấy tọa độ đầu rắn
-    food_pos = food.rect.topleft  # Lấy tọa độ food từ rect
+    head = snake.body[0].topleft
+    food_pos = food.rect.topleft
 
-    # Kiểm tra xem rắn có vừa ăn thức ăn không
     if head == food_pos:
-        # Tính toán đường đi mới ngay lập tức
-        # snake.move()  # Di chuyển rắn trước
         score += current_level
         fps = float(fps + 25 / 10000 * fps)
         snake.grow_snake()
         food.position = food.reset_position(snake.body)
-        head = snake.body[0].topleft  # Lấy vị trí đầu mới
-        food_pos = food.reset_position(snake_instance.body)  # Lấy vị trí thức ăn mới
+        head = snake.body[0].topleft
+        food_pos = food.reset_position(snake_instance.body)
     
     obstacles = set(segment.topleft for segment in snake.body[1:])
     
-    path = astar(head, food_pos, obstacles)  # Truyền tọa độ food thay vì đối tượng food
+    path = astar(head, food_pos, obstacles)
     
     if path:
         next_pos = path[0]
         dx, dy = next_pos[0] - head[0], next_pos[1] - head[1]
         snake.velocity = (dx, dy)
     else:
-        # Nếu không tìm được đường đi, tìm không gian trống gần nhất
         for dx, dy in [UP_VELOCITY, RIGHT_VELOCITY, DOWN_VELOCITY, LEFT_VELOCITY]:
             next_pos = (head[0] + dx, head[1] + dy)
             if next_pos not in obstacles:
