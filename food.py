@@ -23,7 +23,7 @@ class Food:
 
         if available_positions:
             return random.choice(available_positions)
-        return (0, LINE_START[1])
+        return 0, LINE_START[1]
 
     def draw(self, screen):
         pygame.draw.rect(screen, self.current_color, self.rect)

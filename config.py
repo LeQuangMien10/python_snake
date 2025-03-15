@@ -53,6 +53,7 @@ CONTINUE = 0
 NEW_GAME = 1
 LEVEL_SELECT = 2
 HIGH_SCORE = 3
+# AI_NEW_GAME = 4
 QUIT = 4
 HIGH_SCORE_FILE = "highscores.json"
 SAVE_FILE = "game_state.json"

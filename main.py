@@ -1,3 +1,5 @@
+import heapq
+
 import pygame
 from config import *
 import snake
@@ -35,6 +37,9 @@ level_loop = False
 current_level = DEFAULT_LEVEL
 fps = LEVEL_SPEEDS[current_level]
 str_fps = str(fps)
+
+#AI Game Loop Variables
+ai_game_loop = False
 
 
 # Initialize menu screen
@@ -74,6 +79,8 @@ def handle_menu_event():
                 elif selected == QUIT:
                     save_settings()
                     main_loop = False
+            elif event.key == pygame.K_a:
+                do_ai_game_loop()
 
 
 # Control snake with keyboard.
@@ -275,7 +282,7 @@ def do_game_loop():
         pygame.display.flip()
         clock.tick(fps)
         str_fps = str(fps)
-        print(current_level, fps, LEVEL_SPEEDS[current_level], str_fps)
+        # print(current_level, fps, LEVEL_SPEEDS[current_level], str_fps)
     save_game_state()
 
 
@@ -416,6 +423,80 @@ def load_settings():
         current_level = DEFAULT_LEVEL
         fps = LEVEL_SPEEDS[current_level]
 
+def astar(start, goal, obstacles):
+    def heuristic(s, g):
+        return abs(s[0] - g[0]) + abs(s[1] - g[1])
+    open_set = [] # Priority queue for f(n)
+    heapq.heappush(open_set, (0, start))
+
+    came_from = {} # Dict for saving the path
+    g_score = {start: 0} # Cost
+    f_score = {start: heuristic(start, goal)} # Manhattan distance
+
+    while open_set:
+        _, current = heapq.heappop(open_set)
+
+        if current == goal:
+            path = []
+            while current in came_from:
+                path.append(current)
+                current = came_from[current]
+            return path[::-1]
+
+        for dx, dy in [UP_VELOCITY, DOWN_VELOCITY, LEFT_VELOCITY, RIGHT_VELOCITY]:
+            neighbor = (current[0] + dx, current[1] + dy)
+
+            if neighbor in obstacles:
+                continue
+
+            tentative_g_score = g_score[current] + 1
+
+            if neighbor not in g_score or tentative_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = tentative_g_score
+                f_score[neighbor] = tentative_g_score + heuristic(neighbor, goal)
+                heapq.heappush(open_set, (f_score[neighbor], neighbor))
+    return []
+
+def move_snake_ai(snake, food):
+    head = snake.body[0].topleft  # Lấy tọa độ đầu rắn
+    food_pos = food.rect.topleft  # Lấy tọa độ food từ rect
+    
+    obstacles = set(segment.topleft for segment in snake.body[1:])
+    
+    path = astar(head, food_pos, obstacles)  # Truyền tọa độ food thay vì đối tượng food
+    
+    if path:
+        next_pos = path[0]
+        dx, dy = next_pos[0] - head[0], next_pos[1] - head[1]
+        snake.velocity = (dx, dy)
+
+def do_ai_game_loop():
+    global event, fps, str_fps, ai_game_loop, main_loop, paused
+    ai_game_loop = True
+    while ai_game_loop:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                ai_game_loop = False
+                main_loop = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    ai_game_loop = False
+                elif event.key == pygame.K_r:
+                    reset_game()
+                elif event.key == pygame.K_p:
+                    paused = not paused
+        move_snake_ai(snake_instance, food_instance)
+        # Draw screen
+        draw_game_screen()
+        display_game()
+        check_for_game_over()
+        # Update screen
+        pygame.display.flip()
+        clock.tick(fps)
+        str_fps = str(fps)
+        # print(current_level, fps, LEVEL_SPEEDS[current_level], str_fps)
+    # save_game_state()
 
 load_settings()
 # Main loop
