@@ -4,6 +4,7 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
+LIGHT_BLUE = (100, 200, 255)
 
 # Screen
 SCREEN_WIDTH = 600

@@ -1,5 +1,5 @@
 import heapq
-
+import random
 import pygame
 from config import *
 import snake
@@ -26,6 +26,9 @@ menu_selected_font = pygame.font.SysFont("comicsans", 40)
 options = ["CONTINUE", "NEW GAME", "SELECT LEVEL", "HIGH SCORES", "QUIT"]
 selected = 0
 
+particles = [{"x": random.randint(0, SCREEN_WIDTH), "y": random.randint(0, SCREEN_HEIGHT),
+              "speed": random.uniform(0.01, 0.05)} for _ in range(50)]
+
 # Game variables
 game_loop = False
 snake_instance = snake.Snake(velocity=LEFT_VELOCITY)
@@ -45,21 +48,42 @@ current_level = DEFAULT_LEVEL
 fps = LEVEL_SPEEDS[current_level]
 str_fps = str(fps)
 
-#AI Game Loop Variables
+# AI Game Loop Variables
 ai_game_loop = False
 
 
 # Initialize menu screen
 def initialize_menu_screen():
     screen.fill(BACKGROUND_COLOR)
-    title = title_font.render("SNAKE GAME", True, WHITE)
-    screen.blit(title, ((SCREEN_WIDTH - title.get_width()) // 2, 50))
+    draw_menu_particles()
+    draw_menu_title()
+    draw_menu_options()
+
+    pygame.display.flip()
+
+
+def draw_menu_options():
     for i, option in enumerate(options):
         color = WHITE if i != selected else YELLOW
         menu_text = menu_font.render(
             option, True, color) if i != selected else menu_selected_font.render(option, True, color)
         screen.blit(menu_text, (MENU_OPTION_X, (250 + 50 * i - menu_text.get_height() // 2)))
-    pygame.display.flip()
+
+
+def draw_menu_title():
+    title = title_font.render("SNAKE GAME", True, WHITE)
+    screen.blit(title, ((SCREEN_WIDTH - title.get_width()) // 2, 50))
+
+
+def draw_menu_particles():
+    for particle in particles:
+        pygame.draw.rect(screen, LIGHT_BLUE, (particle["x"], particle["y"], 5, 5))
+        # particle["x"] += random.uniform(-0.1, 0.1)
+        particle["y"] += particle["speed"]
+
+        if particle["y"] > SCREEN_HEIGHT:
+            particle["y"] = 0
+            particle["x"] = random.randint(0, SCREEN_WIDTH)
 
 
 # Handle Menu Event
@@ -441,15 +465,17 @@ def load_settings():
         current_level = DEFAULT_LEVEL
         fps = LEVEL_SPEEDS[current_level]
 
+
 def astar(start, goal, obstacles):
     def heuristic(s, g):
         return abs(s[0] - g[0]) + abs(s[1] - g[1])
-    open_set = [] # Priority queue for f(n)
+
+    open_set = []  # Priority queue for f(n)
     heapq.heappush(open_set, (0, start))
 
-    came_from = {} # Dict for saving the path
-    g_score = {start: 0} # Cost
-    f_score = {start: heuristic(start, goal)} # Manhattan distance
+    came_from = {}  # Dict for saving the path
+    g_score = {start: 0}  # Cost
+    f_score = {start: heuristic(start, goal)}  # Manhattan distance
 
     while open_set:
         _, current = heapq.heappop(open_set)
@@ -485,6 +511,7 @@ def astar(start, goal, obstacles):
                 heapq.heappush(open_set, (f_score[neighbor], neighbor))
     return []
 
+
 def move_snake_ai(snake, food):
     global score, fps
     head = snake.body[0].topleft
@@ -498,11 +525,11 @@ def move_snake_ai(snake, food):
         eating_sound.play()
         head = snake.body[0].topleft
         food_pos = food.reset_position(snake_instance.body)
-    
+
     obstacles = set(segment.topleft for segment in snake.body[1:])
-    
+
     path = astar(head, food_pos, obstacles)
-    
+
     if path:
         next_pos = path[0]
         dx, dy = next_pos[0] - head[0], next_pos[1] - head[1]
@@ -513,6 +540,7 @@ def move_snake_ai(snake, food):
             if next_pos not in obstacles:
                 snake.velocity = (dx, dy)
                 break
+
 
 def do_ai_game_loop():
     global event, fps, str_fps, ai_game_loop, main_loop, paused
@@ -538,6 +566,7 @@ def do_ai_game_loop():
         pygame.display.flip()
         clock.tick(fps)
         str_fps = str(fps)
+
 
 load_settings()
 # Main loop
