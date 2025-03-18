@@ -1,5 +1,7 @@
 import heapq
 import random
+import time
+
 import pygame
 from config import *
 import snake
@@ -54,20 +56,37 @@ ai_game_loop = False
 
 # Initialize menu screen
 def initialize_menu_screen():
+    # screen.fill(BACKGROUND_COLOR)
+
+
+    draw_menu_options()
+
+    # pygame.display.flip()
+
+
+def draw_menu_options(offset_x=0):
     screen.fill(BACKGROUND_COLOR)
     draw_menu_particles()
     draw_menu_title()
-    draw_menu_options()
+
+    for i, option in enumerate(options):
+        color = GRAY if i != selected else YELLOW
+        menu_text = menu_font.render(
+            option, True, color) if i != selected else (
+            menu_selected_font.render(option, True, color))
+        # screen.blit(menu_text, (MENU_OPTION_X, (250 + 50 * i - menu_text.get_height() // 2)))
+        if i == selected:
+            screen.blit(menu_text, (MENU_OPTION_X + offset_x, (250 + 50 * i - menu_text.get_height() // 2)))
+        else:
+            screen.blit(menu_text, (MENU_OPTION_X, (250 + 50 * i - menu_text.get_height() // 2)))
 
     pygame.display.flip()
 
-
-def draw_menu_options():
-    for i, option in enumerate(options):
-        color = WHITE if i != selected else YELLOW
-        menu_text = menu_font.render(
-            option, True, color) if i != selected else menu_selected_font.render(option, True, color)
-        screen.blit(menu_text, (MENU_OPTION_X, (250 + 50 * i - menu_text.get_height() // 2)))
+def shake_selected_option():
+    shake_offsets = [-10, 10, -7, 7, -5, 5, -2, 2, 0]
+    for offset in shake_offsets:
+        draw_menu_options(offset)
+        time.sleep(0.05)
 
 
 def draw_menu_title():
@@ -77,7 +96,7 @@ def draw_menu_title():
 
 def draw_menu_particles():
     for particle in particles:
-        pygame.draw.rect(screen, LIGHT_BLUE, (particle["x"], particle["y"], 5, 5))
+        pygame.draw.rect(screen, LIGHT_SKY_BLUE, (particle["x"], particle["y"], 5, 5))
         # particle["x"] += random.uniform(-0.1, 0.1)
         particle["y"] += particle["speed"]
 
@@ -102,6 +121,7 @@ def handle_menu_event():
                 button_hover_sound.play()
             elif event.key == pygame.K_RETURN:
                 button_pressed_sound.play()
+                shake_selected_option()
                 if selected == CONTINUE:
                     do_game_loop()
                 elif selected == NEW_GAME:
