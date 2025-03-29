@@ -602,4 +602,4 @@ else:
     save_game_state()
 
 pygame.quit()
-exit()
+# exit()

@@ -1,0 +1,27 @@
+{
+    "snake_body": [
+        [
+            300,
+            300
+        ],
+        [
+            320,
+            300
+        ],
+        [
+            340,
+            300
+        ]
+    ],
+    "snake_length": 3,
+    "snake_velocity": [
+        -20,
+        0
+    ],
+    "food_position": [
+        380,
+        480
+    ],
+    "score": 0,
+    "paused": true
+}
